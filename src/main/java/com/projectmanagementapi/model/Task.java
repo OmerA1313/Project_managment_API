@@ -6,9 +6,13 @@ import jakarta.persistence.*;
 @Table(name = "TASKS")
 public class Task {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String description;
+
+    @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,13 +34,14 @@ public class Task {
         return description;
     }
 
-    public TaskStatus getTaskStatus() {
+    public TaskStatus getStatus() {
         return taskStatus;
     }
 
     public Project getProject() {
         return project;
     }
+
 
     public void setId(Long id) {
         this.id = id;
@@ -50,7 +55,7 @@ public class Task {
         this.description = description;
     }
 
-    public void setTaskStatus(TaskStatus taskStatus) {
+    public void setStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
 
