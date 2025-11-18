@@ -1,7 +1,10 @@
 package com.projectmanagementapi.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.projectmanagementapi.model.TaskStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,9 +17,14 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class) // Handle a resource not found exception (i.e. non existent project/task)
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // --- 404: Resource not found ---
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
             ResourceNotFoundException ex, WebRequest request) {
+
+        log.warn("Resource not found: {}", ex.getMessage());
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
@@ -28,14 +36,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class) // Handle cases where received json is in wrong format
+    // --- 400: Invalid JSON or bad enum value ---
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidFormat(HttpMessageNotReadableException ex, WebRequest request) {
+
         Throwable cause = ex.getCause();
 
-        // If Jackson threw InvalidFormatException, handle it
         if (cause instanceof InvalidFormatException invalidFormat) {
             String fieldName = invalidFormat.getPath().get(0).getFieldName();
             String invalidValue = invalidFormat.getValue().toString();
+
+            log.warn("Invalid value '{}' for field '{}'", invalidValue, fieldName);
 
             ErrorResponse error = new ErrorResponse(
                     LocalDateTime.now(),
@@ -47,7 +58,9 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
 
-        // Otherwise return generic 400 error
+        // Generic malformed JSON
+        log.warn("Malformed JSON request: {}", ex.getMessage());
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -57,14 +70,18 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler(Exception.class) // Handle any general exception in a neat way and send a json to the user
+
+    // --- 500: Unhandled exceptions ---
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(
             Exception ex, WebRequest request) {
+
+        log.error("Unexpected server error", ex);
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage(),
+                "An unexpected error occurred",
                 request.getDescription(false)
         );
 
