@@ -2,6 +2,7 @@ package com.projectmanagementapi.service;
 
 import com.projectmanagementapi.dto.PagedResponse;
 import com.projectmanagementapi.dto.ProjectDto;
+aimport com.projectmanagementapi.exception.ResourceNotFoundException;
 import com.projectmanagementapi.mapper.ProjectMapper;
 import com.projectmanagementapi.model.Project;
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public class ProjectService {
 
     public ProjectDto getProjectById(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id "+ id));
         return ProjectMapper.toDto(project);
     }
 
@@ -53,12 +54,12 @@ public class ProjectService {
             project.setName(updatedProject.getName());
             project.setDescription(updatedProject.getDescription());
             return projectRepository.save(project);
-        }).orElseThrow(() -> new RuntimeException("Project not found with id " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + id));
     }
 
     public void deleteProject(Long id) {
         if (!projectRepository.existsById(id)) {
-            throw new RuntimeException("Project not found with id " + id);
+            throw new ResourceNotFoundException("Project not found with id " + id);
         }
         projectRepository.deleteById(id);
     }

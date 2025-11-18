@@ -2,6 +2,7 @@ package com.projectmanagementapi.service;
 
 import com.projectmanagementapi.dto.PagedResponse;
 import com.projectmanagementapi.dto.TaskDto;
+import com.projectmanagementapi.exception.ResourceNotFoundException;
 import com.projectmanagementapi.mapper.TaskMapper;
 import com.projectmanagementapi.model.Project;
 import com.projectmanagementapi.model.Task;
@@ -28,7 +29,7 @@ public class TaskService {
 
     public Task createTask(Long projectId, Task task) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found with id " + projectId));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + projectId));
 
         task.setProject(project);
         if (task.getStatus() == null) {
@@ -40,7 +41,7 @@ public class TaskService {
 
     public TaskDto getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         return TaskMapper.toDto(task);
     }
 
@@ -74,12 +75,12 @@ public class TaskService {
                     }
                     return taskRepository.save(task);
                 })
-                .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
     }
 
     public void deleteTask(Long taskId) {
         if (!taskRepository.existsById(taskId)) {
-            throw new RuntimeException("Task not found with id " + taskId);
+            throw new ResourceNotFoundException("Task not found with id " + taskId);
         }
         taskRepository.deleteById(taskId);
     }
