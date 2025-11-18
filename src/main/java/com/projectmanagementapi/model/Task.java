@@ -1,5 +1,6 @@
 package com.projectmanagementapi.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,6 +18,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonBackReference
     private Project project;
 
     public Task() {

@@ -1,10 +1,15 @@
 package com.projectmanagementapi.service;
 
+import com.projectmanagementapi.dto.PagedResponse;
+import com.projectmanagementapi.dto.ProjectDto;
+import com.projectmanagementapi.mapper.ProjectMapper;
 import com.projectmanagementapi.model.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import com.projectmanagementapi.repository.ProjectRepository;
+
+import java.util.List;
 
 @Service
 public class ProjectService {
@@ -21,13 +26,26 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public Page<Project> getAllProjects(int page, int size) {
-        return projectRepository.findAll(PageRequest.of(page, size));
+    public ProjectDto getProjectById(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        return ProjectMapper.toDto(project);
     }
 
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with id " + id));
+    public PagedResponse<ProjectDto> getAllProjects(int page, int size) {
+        Page<Project> projectsPage = projectRepository.findAll(PageRequest.of(page, size));
+
+        List<ProjectDto> dtos = projectsPage.getContent()
+                .stream()
+                .map(ProjectMapper::toDto)
+                .toList();
+
+        return new PagedResponse<>(
+                dtos,
+                projectsPage.getNumber(),
+                projectsPage.getSize(),
+                projectsPage.getTotalElements()
+        );
     }
 
     public Project updateProject(Long id, Project updatedProject) {

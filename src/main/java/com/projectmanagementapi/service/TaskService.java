@@ -1,5 +1,8 @@
 package com.projectmanagementapi.service;
 
+import com.projectmanagementapi.dto.PagedResponse;
+import com.projectmanagementapi.dto.TaskDto;
+import com.projectmanagementapi.mapper.TaskMapper;
 import com.projectmanagementapi.model.Project;
 import com.projectmanagementapi.model.Task;
 import com.projectmanagementapi.model.TaskStatus;
@@ -8,6 +11,8 @@ import com.projectmanagementapi.repository.TaskRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TaskService {
@@ -33,13 +38,30 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public Page<Task> getTasksForProject(Long projectId, int page, int size) {
-        return taskRepository.findByProject_Id(projectId, PageRequest.of(page, size));
+    public TaskDto getTaskById(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        return TaskMapper.toDto(task);
     }
 
-    public Task getTaskById(Long taskId) {
-        return taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found with id " + taskId));
+    public PagedResponse<TaskDto> getTasksForProject(Long projectId, int page, int size) {
+
+        Page<Task> tasksPage = taskRepository.findByProject_Id(
+                projectId,
+                PageRequest.of(page, size)
+        );
+
+        List<TaskDto> dtos = tasksPage.getContent()
+                .stream()
+                .map(TaskMapper::toDto)
+                .toList();
+
+        return new PagedResponse<>(
+                dtos,
+                tasksPage.getNumber(),
+                tasksPage.getSize(),
+                tasksPage.getTotalElements()
+        );
     }
 
     public Task updateTask(Long taskId, Task updated) {

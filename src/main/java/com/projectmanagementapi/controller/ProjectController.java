@@ -1,5 +1,7 @@
 package com.projectmanagementapi.controller;
 
+import com.projectmanagementapi.dto.PagedResponse;
+import com.projectmanagementapi.dto.ProjectDto;
 import com.projectmanagementapi.model.Project;
 import com.projectmanagementapi.service.ProjectService;
 import org.springframework.data.domain.Page;
@@ -15,28 +17,30 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @PostMapping
+    @PostMapping // CREATE a new project with request body
     public Project createProject(@RequestBody Project project) {
         return projectService.createProject(project);
     }
 
-    @GetMapping
-    public Page<Project> getAllProjects(@RequestParam(defaultValue = "0") int page,
-                                        @RequestParam(defaultValue = "10") int size) {
-        return projectService.getAllProjects(page, size);
-    }
-
     @GetMapping("/{id}")
-    public Project getProject(@PathVariable Long id) {
+    public ProjectDto getProject(@PathVariable Long id) {
         return projectService.getProjectById(id);
     }
 
-    @PutMapping("/{id}")
+    @GetMapping
+    public PagedResponse<ProjectDto> getAllProjects(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return projectService.getAllProjects(page, size);
+    }
+
+    @PutMapping("/{id}") // UPDATE project
     public Project updateProject(@PathVariable Long id, @RequestBody Project project) {
         return projectService.updateProject(id, project);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}") // Delete project by id
     public void deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
     }

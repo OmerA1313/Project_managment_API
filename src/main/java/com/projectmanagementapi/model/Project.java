@@ -1,5 +1,6 @@
 package com.projectmanagementapi.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -12,7 +13,9 @@ public class Project {
     private Long id;
     private String name;
     private String description;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Task> tasks;
 
     public Project() {
