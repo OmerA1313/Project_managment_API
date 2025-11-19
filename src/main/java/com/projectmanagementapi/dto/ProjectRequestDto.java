@@ -15,6 +15,4 @@ public record ProjectRequestDto(
         String description
 
 ) {
-        public ProjectRequestDto {
-        }
 }

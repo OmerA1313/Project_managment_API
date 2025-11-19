@@ -18,7 +18,6 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(LocalDateTime timestamp, int status, String message, String path) {
-        //errors = new ArrayList<>();
         this.timestamp = timestamp;
         this.status = status;
         this.message = message;

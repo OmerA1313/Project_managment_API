@@ -22,6 +22,8 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    // Catch validation error exceptions -400
+    // -------------------------------------------------------------------------
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(
@@ -47,8 +49,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // -------------------------------------------------------------------------
-    // 404 — RESOURCE NOT FOUND
+    // Resource not found - 404
     // -------------------------------------------------------------------------
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
@@ -62,8 +63,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // 400 — JSON PARSE ERRORS / INVALID INPUT FORMAT
+    // JSON parse errors - 400
     // -------------------------------------------------------------------------
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidJson(
@@ -85,10 +85,9 @@ public class GlobalExceptionHandler {
             );
         }
 
-        if (cause instanceof UnrecognizedPropertyException upe) {
-            // Unknown field in JSON input
-            String property = upe.getPropertyName();
+        if (cause instanceof UnrecognizedPropertyException upe) { // Unknown field in JSON input
 
+            String property = upe.getPropertyName();
             log.warn("Unrecognized field '{}' in request body", property);
 
             return buildErrorResponse(
@@ -108,8 +107,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // 500 — UNEXPECTED SERVER ERRORS
+    // Unexpected server errors - 500
     // -------------------------------------------------------------------------
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(
@@ -124,8 +122,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Helper for building consistent error responses
+    // Helper function
     // -------------------------------------------------------------------------
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             HttpStatus status,
