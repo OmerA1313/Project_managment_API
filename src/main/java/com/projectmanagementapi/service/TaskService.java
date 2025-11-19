@@ -33,7 +33,7 @@ public class TaskService {
         this.projectRepository = projectRepository;
     }
 
-    public Task createTask(Long projectId, Task task) {
+    public TaskDto createTask(Long projectId, Task task) {
         log.info("Creating task '{}' under project {}", task.getTitle(), projectId);
 
         Project project = projectRepository.findById(projectId)
@@ -51,7 +51,7 @@ public class TaskService {
 
         Task saved = taskRepository.save(task);
         log.info("Task '{}' created successfully with id {}", saved.getTitle(), saved.getId());
-        return saved;
+        return TaskMapper.toDto(saved);
     }
 
     public TaskDto getTaskById(Long taskId) {
@@ -69,6 +69,9 @@ public class TaskService {
 
     public PagedResponse<TaskDto> getTasksForProject(Long projectId, int page, int size) {
         log.info("Fetching tasks for project {} page={} size={}", projectId, page, size);
+        if (!projectRepository.existsById(projectId)) {
+            throw new ResourceNotFoundException("Project not found with id " + projectId);
+        }
 
         Page<Task> tasksPage = taskRepository.findByProject_Id(
                 projectId,
@@ -95,7 +98,7 @@ public class TaskService {
         );
     }
 
-    public Task updateTask(Long taskId, Task updated) {
+    public TaskDto updateTask(Long taskId, Task updated) {
         log.info("Updating task with id={}", taskId);
 
         return taskRepository.findById(taskId)
@@ -110,7 +113,7 @@ public class TaskService {
 
                     Task saved = taskRepository.save(task);
                     log.info("Task with id={} updated successfully", taskId);
-                    return saved;
+                    return TaskMapper.toDto(saved);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId));
     }

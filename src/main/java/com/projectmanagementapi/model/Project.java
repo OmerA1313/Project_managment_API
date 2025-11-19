@@ -3,6 +3,7 @@ package com.projectmanagementapi.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,6 +20,7 @@ public class Project {
     private List<Task> tasks;
 
     public Project() {
+        this.tasks = new ArrayList<>();
     }
 
     public Long getId() {

@@ -25,10 +25,10 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public Project createProject(Project project) {
+    public ProjectDto createProject(Project project) {
         log.info("Creating new project with name='{}'", project.getName());
-        Project saved = projectRepository.save(project);
-        log.info("Project created successfully with id={}", saved.getId());
+        ProjectDto saved = ProjectMapper.toDto(projectRepository.save(project));
+        log.info("Project created successfully with id={}", saved.id());
         return saved;
     }
 

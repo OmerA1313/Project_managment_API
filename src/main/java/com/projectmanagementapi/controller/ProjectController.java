@@ -36,27 +36,21 @@ public class ProjectController {
             summary = "Create a new project",
             description = "Creates a new project using the provided name and description."
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Project created successfully",
-                    content = @Content(schema = @Schema(implementation = ProjectDto.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Invalid project data")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "201", description = "Project created successfully",
+                                content = @Content(schema = @Schema(implementation = ProjectDto.class))
+            ),@ApiResponse(responseCode = "400", description = "Invalid project data")})
+
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Project object containing name and description",
                     required = true,
+                    description = "Project object containing name and description",
                     content = @Content(schema = @Schema(implementation = ProjectDto.class))
             )
             @RequestBody Project project
     ) {
-        Project saved = projectService.createProject(project);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ProjectMapper.toDto(saved));
+        ProjectDto saved = projectService.createProject(project);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     // -------------------------------------------------------------------------
@@ -64,47 +58,39 @@ public class ProjectController {
     // -------------------------------------------------------------------------
     @Operation(
             summary = "Get a project by ID",
-            description = "Fetch project details by providing a project ID."
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Project retrieved",
-                    content = @Content(schema = @Schema(implementation = ProjectDto.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Project not found")
-    })
+            description = "Fetch project details by providing a project ID.")
+    @ApiResponses({@ApiResponse(
+                    responseCode = "200", description = "Project retrieved",
+                    content = @Content(schema = @Schema(implementation = ProjectDto.class))),
+            @ApiResponse(responseCode = "404", description = "Project not found")})
+    //-------------------------------------------------------------------------
     @GetMapping("/{id}")
-    public ProjectDto getProject(
-            @Parameter(description = "ID of the project to retrieve", example = "1")
-            @PathVariable Long id
+    public ResponseEntity<ProjectDto> getProject(@Parameter(description = "ID of the project to retrieve", example = "1") @PathVariable Long id
     ) {
-        return projectService.getProjectById(id); // already returns DTO
+        ProjectDto dto = projectService.getProjectById(id);
+        return ResponseEntity.ok(dto);
     }
 
     // -------------------------------------------------------------------------
     // GET ALL PROJECTS (PAGINATED)
     // -------------------------------------------------------------------------
     @Operation(
-            summary = "Get all projects (paginated)",
-            description = "Returns a paginated list of all available projects."
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "List retrieved",
-                    content = @Content(schema = @Schema(implementation = PagedResponse.class))
-            )
+            summary = "Get all projects (paginated)", description = "Returns a paginated list of all available projects."
+    ) @ApiResponses({@ApiResponse(
+                    responseCode = "200", description = "List retrieved",
+                    content = @Content(schema = @Schema(implementation = PagedResponse.class)))
     })
+    //-------------------------------------------------------------------------
     @GetMapping
-    public PagedResponse<ProjectDto> getAllProjects(
+    public ResponseEntity<PagedResponse<ProjectDto>> getAllProjects(
             @Parameter(description = "Page number (0-based index)", example = "0")
             @RequestParam(defaultValue = "0") int page,
 
             @Parameter(description = "Page size", example = "10")
             @RequestParam(defaultValue = "10") int size
     ) {
-        return projectService.getAllProjects(page, size);
+        PagedResponse<ProjectDto> response = projectService.getAllProjects(page, size);
+        return ResponseEntity.ok(response);
     }
 
     // -------------------------------------------------------------------------
@@ -122,8 +108,9 @@ public class ProjectController {
             ),
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
+    //-------------------------------------------------------------------------
     @PutMapping("/{id}")
-    public ProjectDto updateProject(
+    public ResponseEntity<ProjectDto> updateProject(
             @Parameter(description = "ID of the project to update", example = "1")
             @PathVariable Long id,
 
@@ -134,7 +121,7 @@ public class ProjectController {
             @RequestBody Project project
     ) {
         Project updated = projectService.updateProject(id, project);
-        return ProjectMapper.toDto(updated);
+        return ResponseEntity.ok(ProjectMapper.toDto(updated));
     }
 
     // -------------------------------------------------------------------------
@@ -148,6 +135,7 @@ public class ProjectController {
             @ApiResponse(responseCode = "200", description = "Project deleted"),
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
+    //-------------------------------------------------------------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(
             @Parameter(description = "ID of the project to delete", example = "1")

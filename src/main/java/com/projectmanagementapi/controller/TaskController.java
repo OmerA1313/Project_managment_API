@@ -37,11 +37,8 @@ public class TaskController {
             description = "Creates a task and assigns it to a project."
     )
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Task created successfully",
-                    content = @Content(schema = @Schema(implementation = TaskDto.class))
-            ),
+            @ApiResponse(responseCode = "201", description = "Task created successfully",
+                    content = @Content(schema = @Schema(implementation = TaskDto.class))),
             @ApiResponse(responseCode = "404", description = "Project not found"),
             @ApiResponse(responseCode = "400", description = "Invalid task format")
     })
@@ -57,8 +54,8 @@ public class TaskController {
             )
             @RequestBody Task task
     ) {
-        Task saved = taskService.createTask(projectId, task);
-        return ResponseEntity.status(HttpStatus.CREATED).body(TaskMapper.toDto(saved));
+        TaskDto saved = taskService.createTask(projectId, task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     // -------------------------------------------------------------------------
@@ -66,19 +63,17 @@ public class TaskController {
     // -------------------------------------------------------------------------
     @Operation(summary = "Get a task by ID")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Task retrieved",
-                    content = @Content(schema = @Schema(implementation = TaskDto.class))
-            ),
+            @ApiResponse(responseCode = "200", description = "Task retrieved",
+                    content = @Content(schema = @Schema(implementation = TaskDto.class))),
             @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @GetMapping("/tasks/{taskId}")
-    public TaskDto getTask(
+    public ResponseEntity<TaskDto> getTask(
             @Parameter(description = "ID of the task to retrieve", example = "10")
             @PathVariable Long taskId
     ) {
-        return taskService.getTaskById(taskId); // already returns DTO
+        TaskDto dto = taskService.getTaskById(taskId);
+        return ResponseEntity.ok(dto);
     }
 
     // -------------------------------------------------------------------------
@@ -89,15 +84,12 @@ public class TaskController {
             description = "Returns a paginated list of tasks belonging to the given project."
     )
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Tasks retrieved",
-                    content = @Content(schema = @Schema(implementation = PagedResponse.class))
-            ),
+            @ApiResponse(responseCode = "200", description = "Tasks retrieved",
+                    content = @Content(schema = @Schema(implementation = PagedResponse.class))),
             @ApiResponse(responseCode = "404", description = "Project not found")
     })
     @GetMapping("/projects/{projectId}/tasks")
-    public PagedResponse<TaskDto> getTasksForProject(
+    public ResponseEntity<PagedResponse<TaskDto>> getTasksForProject(
             @Parameter(description = "Project ID", example = "1")
             @PathVariable Long projectId,
 
@@ -107,7 +99,8 @@ public class TaskController {
             @Parameter(description = "Page size", example = "10")
             @RequestParam(defaultValue = "10") int size
     ) {
-        return taskService.getTasksForProject(projectId, page, size);
+        PagedResponse<TaskDto> response = taskService.getTasksForProject(projectId, page, size);
+        return ResponseEntity.ok(response);
     }
 
     // -------------------------------------------------------------------------
@@ -115,15 +108,12 @@ public class TaskController {
     // -------------------------------------------------------------------------
     @Operation(summary = "Update an existing task")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Task updated successfully",
-                    content = @Content(schema = @Schema(implementation = TaskDto.class))
-            ),
+            @ApiResponse(responseCode = "200", description = "Task updated successfully",
+                    content = @Content(schema = @Schema(implementation = TaskDto.class))),
             @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @PutMapping("/tasks/{taskId}")
-    public TaskDto updateTask(
+    public ResponseEntity<TaskDto> updateTask(
             @Parameter(description = "ID of the task to update", example = "5")
             @PathVariable Long taskId,
 
@@ -133,8 +123,8 @@ public class TaskController {
             )
             @RequestBody Task updatedTask
     ) {
-        Task updated = taskService.updateTask(taskId, updatedTask);
-        return TaskMapper.toDto(updated);
+        TaskDto updated = taskService.updateTask(taskId, updatedTask);
+        return ResponseEntity.ok(updated);
     }
 
     // -------------------------------------------------------------------------
