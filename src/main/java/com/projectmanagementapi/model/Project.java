@@ -1,6 +1,7 @@
 package com.projectmanagementapi.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.projectmanagementapi.dto.ProjectRequestDto;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
@@ -21,6 +22,12 @@ public class Project {
     private List<Task> tasks;
 
     public Project() {
+        this.tasks = new ArrayList<>();
+    }
+
+    public Project(ProjectRequestDto projectRequestDto){
+        this.name = projectRequestDto.name();
+        this.description = projectRequestDto.description();
         this.tasks = new ArrayList<>();
     }
 

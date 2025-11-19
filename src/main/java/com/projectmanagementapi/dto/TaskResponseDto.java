@@ -2,7 +2,7 @@ package com.projectmanagementapi.dto;
 
 import com.projectmanagementapi.model.TaskStatus;
 
-public record TaskDto(
+public record TaskResponseDto(
         Long id,
         String title,
         String description,

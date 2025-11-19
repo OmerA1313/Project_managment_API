@@ -1,12 +1,12 @@
 package com.projectmanagementapi.mapper;
 
-import com.projectmanagementapi.dto.TaskDto;
+import com.projectmanagementapi.dto.TaskResponseDto;
 import com.projectmanagementapi.model.Task;
 
 public class TaskMapper {
 
-    public static TaskDto toDto(Task task) {
-        return new TaskDto(
+    public static TaskResponseDto toDto(Task task) {
+        return new TaskResponseDto(
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),

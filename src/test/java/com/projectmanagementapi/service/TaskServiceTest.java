@@ -1,7 +1,7 @@
 package com.projectmanagementapi.service;
 
 import com.projectmanagementapi.dto.PagedResponse;
-import com.projectmanagementapi.dto.TaskDto;
+import com.projectmanagementapi.dto.TaskResponseDto;
 import com.projectmanagementapi.exception.ResourceNotFoundException;
 import com.projectmanagementapi.model.Project;
 import com.projectmanagementapi.model.Task;
@@ -42,7 +42,6 @@ class TaskServiceTest {
         project.setName("Demo Project");
     }
 
-    // -------------------------------------------------------
     // CREATE TASK
     // -------------------------------------------------------
     @Test
@@ -61,7 +60,7 @@ class TaskServiceTest {
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
 
-        TaskDto created = taskService.createTask(1L, task);
+        TaskResponseDto created = taskService.createTask(1L, task);
 
         assertNotNull(created);
         assertEquals(99L, created.id());
@@ -69,6 +68,7 @@ class TaskServiceTest {
         verify(taskRepository).save(any(Task.class));
     }
 
+    // Create task for a non existing project- excpected failure and excpection thrown
     @Test
     void testCreateTask_ProjectNotFound() {
         Task task = new Task();
@@ -78,8 +78,7 @@ class TaskServiceTest {
                 () -> taskService.createTask(1L, task));
     }
 
-    // -------------------------------------------------------
-    // GET TASK
+    // Get task by id
     // -------------------------------------------------------
     @Test
     void testGetTaskById_Success() {
@@ -92,12 +91,14 @@ class TaskServiceTest {
 
         when(taskRepository.findById(5L)).thenReturn(Optional.of(task));
 
-        TaskDto dto = taskService.getTaskById(5L);
+        TaskResponseDto dto = taskService.getTaskById(5L);
 
         assertEquals("Demo", dto.title());
         verify(taskRepository).findById(5L);
     }
 
+    // Task not found - excpected failure and excpection thrown
+    // -------------------------------------------------------
     @Test
     void testGetTaskById_NotFound() {
         when(taskRepository.findById(99L)).thenReturn(Optional.empty());
@@ -106,8 +107,7 @@ class TaskServiceTest {
                 () -> taskService.getTaskById(99L));
     }
 
-    // -------------------------------------------------------
-    // GET TASKS FOR PROJECT
+    // Get all tasks by project id
     // -------------------------------------------------------
     @Test
     void testGetTasksForProject() {
@@ -121,14 +121,13 @@ class TaskServiceTest {
         when(taskRepository.findByProject_Id(eq(1L), any(PageRequest.class)))
                 .thenReturn(mockPage);
 
-        PagedResponse<TaskDto> response = taskService.getTasksForProject(1L, 0, 10);
+        PagedResponse<TaskResponseDto> response = taskService.getTasksForProject(1L, 0, 10);
 
         assertEquals(1, response.getItems().size());
         assertEquals(1L, response.getItems().get(0).id());
     }
 
-    // -------------------------------------------------------
-    // UPDATE TASK
+    // Update task
     // -------------------------------------------------------
     @Test
     void testUpdateTask_Success() {
@@ -146,13 +145,14 @@ class TaskServiceTest {
         when(taskRepository.findById(10L)).thenReturn(Optional.of(existing));
         when(taskRepository.save(any(Task.class))).thenAnswer(i -> i.getArgument(0));
 
-        TaskDto saved = taskService.updateTask(10L, updated);
+        TaskResponseDto saved = taskService.updateTask(10L, updated);
 
         assertEquals("New", saved.title());
         assertEquals("New desc", saved.description());
         assertEquals(TaskStatus.DONE, saved.status());
     }
 
+    // Update non existing task- excpected failure and excpection thrown
     @Test
     void testUpdateTask_NotFound() {
         Task updated = new Task();
@@ -162,8 +162,7 @@ class TaskServiceTest {
                 () -> taskService.updateTask(55L, updated));
     }
 
-    // -------------------------------------------------------
-    // DELETE TASK
+    // Delete task
     // -------------------------------------------------------
     @Test
     void testDeleteTask_Success() {
@@ -173,7 +172,7 @@ class TaskServiceTest {
 
         verify(taskRepository).deleteById(1L);
     }
-
+    // Delete non existing task- excpected failure and excpection thrown
     @Test
     void testDeleteTask_NotFound() {
         when(taskRepository.existsById(77L)).thenReturn(false);

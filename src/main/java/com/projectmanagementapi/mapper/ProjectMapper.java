@@ -1,14 +1,13 @@
 package com.projectmanagementapi.mapper;
 
-import com.projectmanagementapi.dto.ProjectDto;
-import com.projectmanagementapi.dto.TaskDto;
+import com.projectmanagementapi.dto.ProjectResponseDto;
 import com.projectmanagementapi.model.Project;
 import java.util.stream.Collectors;
 
 public class ProjectMapper {
 
-    public static ProjectDto toDto(Project project) {
-        return new ProjectDto(
+    public static ProjectResponseDto toDto(Project project) {
+        return new ProjectResponseDto(
                 project.getId(),
                 project.getName(),
                 project.getDescription(),

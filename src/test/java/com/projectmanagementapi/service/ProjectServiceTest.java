@@ -1,8 +1,7 @@
 package com.projectmanagementapi.service;
 
-import com.projectmanagementapi.dto.ProjectDto;
+import com.projectmanagementapi.dto.ProjectResponseDto;
 import com.projectmanagementapi.exception.ResourceNotFoundException;
-import com.projectmanagementapi.mapper.ProjectMapper;
 import com.projectmanagementapi.model.Project;
 import com.projectmanagementapi.repository.ProjectRepository;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +26,7 @@ class ProjectServiceTest {
     @InjectMocks
     private ProjectService projectService;
 
+    // Create new project
     // ----------------------------------------------------------
     @Test
     void testCreateProject() {
@@ -36,12 +35,12 @@ class ProjectServiceTest {
 
         when(projectRepository.save(project)).thenReturn(project);
 
-        ProjectDto result = projectService.createProject(project);
+        ProjectResponseDto result = projectService.createProject(project);
 
         assertEquals("Test Project", result.name());
         verify(projectRepository, times(1)).save(project);
     }
-
+    // Get project by id
     // ----------------------------------------------------------
     @Test
     void testGetProjectById() {
@@ -52,12 +51,12 @@ class ProjectServiceTest {
 
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        ProjectDto dto = projectService.getProjectById(1L);
+        ProjectResponseDto dto = projectService.getProjectById(1L);
 
         assertEquals("Test Project", dto.name());
         verify(projectRepository).findById(1L);
     }
-
+    // Get non existing project - excpected failure and excpection thrown
     // ----------------------------------------------------------
     @Test
     void testGetProjectByIdNotFound() {
@@ -67,6 +66,7 @@ class ProjectServiceTest {
                 projectService.getProjectById(100L));
     }
 
+    // Get all projects
     // ----------------------------------------------------------
     @Test
     void testGetAllProjects() {
@@ -83,6 +83,7 @@ class ProjectServiceTest {
         assertEquals(2, result.getItems().size());
     }
 
+    //Update project
     // ----------------------------------------------------------
     @Test
     void testUpdateProjectSuccess() {
@@ -96,11 +97,12 @@ class ProjectServiceTest {
         when(projectRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(projectRepository.save(existing)).thenReturn(existing);
 
-        ProjectDto result = projectService.updateProject(1L, updated);
+        ProjectResponseDto result = projectService.updateProject(1L, updated);
 
         assertEquals("New Name", result.name());
     }
 
+    // Update non existing project - excpected failure and excpection thrown
     // ----------------------------------------------------------
     @Test
     void testUpdateProjectNotFound() {
@@ -113,6 +115,7 @@ class ProjectServiceTest {
                 projectService.updateProject(10L, updated));
     }
 
+    // Delete project
     // ----------------------------------------------------------
     @Test
     void testDeleteProjectSuccess() {
@@ -123,6 +126,7 @@ class ProjectServiceTest {
         verify(projectRepository, times(1)).deleteById(1L);
     }
 
+    // Detlete non existing project - excpected failure and excpection thrown
     @Test
     void testDeleteProjectNotFound() {
         when(projectRepository.existsById(5L)).thenReturn(false);

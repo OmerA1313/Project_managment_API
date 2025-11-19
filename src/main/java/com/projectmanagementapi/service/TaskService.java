@@ -1,7 +1,8 @@
 package com.projectmanagementapi.service;
 
 import com.projectmanagementapi.dto.PagedResponse;
-import com.projectmanagementapi.dto.TaskDto;
+import com.projectmanagementapi.dto.TaskRequestDTo;
+import com.projectmanagementapi.dto.TaskResponseDto;
 import com.projectmanagementapi.exception.ResourceNotFoundException;
 import com.projectmanagementapi.mapper.TaskMapper;
 import com.projectmanagementapi.model.Project;
@@ -33,7 +34,7 @@ public class TaskService {
         this.projectRepository = projectRepository;
     }
 
-    public TaskDto createTask(Long projectId, Task task) {
+    public TaskResponseDto createTask(Long projectId, Task task) {
         log.info("Creating task '{}' under project {}", task.getTitle(), projectId);
 
         Project project = projectRepository.findById(projectId)
@@ -54,7 +55,7 @@ public class TaskService {
         return TaskMapper.toDto(saved);
     }
 
-    public TaskDto getTaskById(Long taskId) {
+    public TaskResponseDto getTaskById(Long taskId) {
         log.info("Fetching task with id={}", taskId);
 
         Task task = taskRepository.findById(taskId)
@@ -67,7 +68,7 @@ public class TaskService {
         return TaskMapper.toDto(task);
     }
 
-    public PagedResponse<TaskDto> getTasksForProject(Long projectId, int page, int size) {
+    public PagedResponse<TaskResponseDto> getTasksForProject(Long projectId, int page, int size) {
         log.info("Fetching tasks for project {} page={} size={}", projectId, page, size);
         if (!projectRepository.existsById(projectId)) {
             throw new ResourceNotFoundException("Project not found with id " + projectId);
@@ -78,7 +79,7 @@ public class TaskService {
                 PageRequest.of(page, size)
         );
 
-        List<TaskDto> dtos = tasksPage.getContent()
+        List<TaskResponseDto> dtos = tasksPage.getContent()
                 .stream()
                 .map(TaskMapper::toDto)
                 .toList();
@@ -98,17 +99,17 @@ public class TaskService {
         );
     }
 
-    public TaskDto updateTask(Long taskId, Task updated) {
+    public TaskResponseDto updateTask(Long taskId, Task updatedTask) {
         log.info("Updating task with id={}", taskId);
 
         return taskRepository.findById(taskId)
                 .map(task -> {
-                    task.setTitle(updated.getTitle());
-                    task.setDescription(updated.getDescription());
+                    task.setTitle(updatedTask.getTitle());
+                    task.setDescription(updatedTask.getDescription());
 
-                    if (updated.getStatus() != null) {
-                        task.setStatus(updated.getStatus());
-                        log.info("Task {} status updated to '{}'", taskId, updated.getStatus());
+                    if (updatedTask.getStatus() != null) {
+                        task.setStatus(updatedTask.getStatus());
+                        log.info("Task {} status updated to '{}'", taskId, updatedTask.getStatus());
                     }
 
                     Task saved = taskRepository.save(task);

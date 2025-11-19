@@ -1,6 +1,7 @@
 package com.projectmanagementapi.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.projectmanagementapi.dto.TaskRequestDTo;
 import jakarta.persistence.*;
 
 @Entity
@@ -22,6 +23,12 @@ public class Task {
     private Project project;
 
     public Task() {
+    }
+
+    public Task(TaskRequestDTo taskRequestDTo){
+        this.title = taskRequestDTo.title();
+        this.description = taskRequestDTo.description();
+        this.taskStatus = taskRequestDTo.status();
     }
 
     public Long getId() {

@@ -2,7 +2,8 @@
 package com.projectmanagementapi.service;
 
 import com.projectmanagementapi.dto.PagedResponse;
-import com.projectmanagementapi.dto.ProjectDto;
+import com.projectmanagementapi.dto.ProjectRequestDto;
+import com.projectmanagementapi.dto.ProjectResponseDto;
 import com.projectmanagementapi.exception.ResourceNotFoundException;
 import com.projectmanagementapi.mapper.ProjectMapper;
 import com.projectmanagementapi.model.Project;
@@ -25,14 +26,14 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public ProjectDto createProject(Project project) {
+    public ProjectResponseDto createProject(Project project) {
         log.info("Creating new project with name='{}'", project.getName());
-        ProjectDto saved = ProjectMapper.toDto(projectRepository.save(project));
+        ProjectResponseDto saved = ProjectMapper.toDto(projectRepository.save(project));
         log.info("Project created successfully with id={}", saved.id());
         return saved;
     }
 
-    public ProjectDto getProjectById(Long id) {
+    public ProjectResponseDto getProjectById(Long id) {
         log.info("Fetching project with id={}", id);
 
         Project project = projectRepository.findById(id)
@@ -42,12 +43,12 @@ public class ProjectService {
         return ProjectMapper.toDto(project);
     }
 
-    public PagedResponse<ProjectDto> getAllProjects(int page, int size) {
+    public PagedResponse<ProjectResponseDto> getAllProjects(int page, int size) {
         log.info("Fetching all projects page={} size={}", page, size);
 
         Page<Project> projectsPage = projectRepository.findAll(PageRequest.of(page, size));
 
-        List<ProjectDto> dtos = projectsPage.getContent()
+        List<ProjectResponseDto> dtos = projectsPage.getContent()
                 .stream()
                 .map(ProjectMapper::toDto)
                 .toList();
@@ -66,7 +67,7 @@ public class ProjectService {
         );
     }
 
-    public ProjectDto updateProject(Long id, Project updatedProject) {
+    public ProjectResponseDto updateProject(Long id, Project updatedProject) {
         log.info("Updating project with id={}", id);
 
         return projectRepository.findById(id)

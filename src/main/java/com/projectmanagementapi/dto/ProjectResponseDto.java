@@ -2,9 +2,9 @@ package com.projectmanagementapi.dto;
 
 import java.util.List;
 
-public record ProjectDto(
+public record ProjectResponseDto(
         Long id,
         String name,
         String description,
-        List<TaskDto> tasks
+        List<TaskResponseDto> tasks
 ) { }
