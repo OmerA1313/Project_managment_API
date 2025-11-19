@@ -2,6 +2,7 @@ package com.projectmanagementapi.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,4 @@ public class Project {
         this.description = description;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
 }

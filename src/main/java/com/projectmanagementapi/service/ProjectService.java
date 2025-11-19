@@ -66,7 +66,7 @@ public class ProjectService {
         );
     }
 
-    public Project updateProject(Long id, Project updatedProject) {
+    public ProjectDto updateProject(Long id, Project updatedProject) {
         log.info("Updating project with id={}", id);
 
         return projectRepository.findById(id)
@@ -75,7 +75,7 @@ public class ProjectService {
                     project.setDescription(updatedProject.getDescription());
                     Project saved = projectRepository.save(project);
                     log.info("Project with id={} updated successfully", id);
-                    return saved;
+                    return ProjectMapper.toDto(saved);
                 })
                 .orElseThrow(() -> {
                     log.warn("Cannot update project: id={} not found", id);

@@ -2,6 +2,7 @@ package com.projectmanagementapi.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // --- 404: Resource not found ---
+    //404: Resource not found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
             ResourceNotFoundException ex, WebRequest request) {
@@ -36,38 +37,36 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // --- 400: Invalid JSON or bad enum value ---
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidFormat(HttpMessageNotReadableException ex, WebRequest request) {
 
         Throwable cause = ex.getCause();
+        ErrorResponse error = new ErrorResponse();
+        error.setTimestamp(LocalDateTime.now());
+        error.setPath(request.getDescription(false));
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        String errorMessage;
 
-        if (cause instanceof InvalidFormatException invalidFormat) {
+        if (cause instanceof InvalidFormatException invalidFormat) { // In case of wrong value for field
             String fieldName = invalidFormat.getPath().get(0).getFieldName();
             String invalidValue = invalidFormat.getValue().toString();
 
             log.warn("Invalid value '{}' for field '{}'", invalidValue, fieldName);
+                    errorMessage = "Invalid value '" + invalidValue + "' for field '" + fieldName + "'";
 
-            ErrorResponse error = new ErrorResponse(
-                    LocalDateTime.now(),
-                    HttpStatus.BAD_REQUEST.value(),
-                    "Invalid value '" + invalidValue + "' for field '" + fieldName + "'",
-                    request.getDescription(false)
-            );
-
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+        else if(cause instanceof UnrecognizedPropertyException unrecognizedProp){ // In case of non-existing/wrong fields
+            String property = unrecognizedProp.getPropertyName();
+            log.warn("unrecognized property '{}', can't parse json ", property);
+            errorMessage = "JSON parse error: Unrecognized field " + property;
         }
 
-        // Generic malformed JSON
-        log.warn("Malformed JSON request: {}", ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Malformed JSON request",
-                request.getDescription(false)
-        );
-
+        else {
+            // Generic malformed JSON
+            log.warn("Malformed JSON request: {}", ex.getMessage());
+            errorMessage = "Malformed JSON request";
+        }
+        error.setMessage(errorMessage);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 

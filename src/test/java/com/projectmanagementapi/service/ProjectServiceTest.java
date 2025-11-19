@@ -96,9 +96,9 @@ class ProjectServiceTest {
         when(projectRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(projectRepository.save(existing)).thenReturn(existing);
 
-        Project result = projectService.updateProject(1L, updated);
+        ProjectDto result = projectService.updateProject(1L, updated);
 
-        assertEquals("New Name", result.getName());
+        assertEquals("New Name", result.name());
     }
 
     // ----------------------------------------------------------
